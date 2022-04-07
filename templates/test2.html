@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="/test" method="post">
+<div class="d-grid gap-2 col-9 mx-auto">
+<h2>Прогресс:</h2>
+<div class="progress">
+<div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+{% if not ready %}
+    <h1>Перевод слова "{{ word }}":</h1>
+    {% if correct %}
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+        <div>
+            Верно!
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not btn_next %}
+
+    {% for item in rus %}
+    <input type="submit" name="{{item}}" class="btn btn-secondary" value="{{item}}">
+    {% endfor %}
+
+    {% else %}
+
+    {% for item in rus %}
+    {% if word_tr == item %}
+    <input type="submit" name="{{item}}" class="btn btn-success btn-lg" value="{{item}}" disabled>
+    {% elif wrong_word == item%}
+    <input type="submit" name="{{item}}" class="btn btn-danger btn-lg" value="{{item}}" disabled>
+    {% else %}
+    <input type="submit" name="{{item}}" class="btn btn-secondary btn-lg" value="{{item}}" disabled>
+    {% endif %}
+    {% endfor %}
+
+    <h1></h1>
+        <input type="submit" name="btn_next" class="btn btn-primary" value="Следующие слово ---->">
+    <h1></h1>
+    <h1></h1>
+
+
+    {% if not correct %}
+    <div><h3>Правильный перевод слова "{{ word }}": {{ word_tr }}</h3></div>
+    <h1></h1>
+    <h1></h1>
+    {% endif %}
+
+    {% endif%}
+</div>
+{% if sound %}
+    <embed src="{{ url_for('static', filename='output.mp3') }}" autostart="true" width="0"
+         height="0">
+{% endif %}
+</form>
+{% else %}
+<div class="alert alert-primary" role="alert">
+    <h1>Отлично, Вы прошли тест. Ваш словарь пополнился.</h1>
+</div>
+
+<div class="d-grid gap-2 d-md-flex justify-content-md-start">
+    <input type="submit" name="main_page" class="btn btn-primary" value="Вернуться на главную страницу">
+</div>
+{% endif %}
+{% endblock %}
