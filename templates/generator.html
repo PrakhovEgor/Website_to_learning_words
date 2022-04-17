@@ -3,19 +3,20 @@
 {% block content %}
 <h1></h1>
 <form action="/generator" method="post">
+<div class="d-grid gap-2 col-11 mx-auto">
     <div class="row justify-content-md-center">
         <div class="col-auto">
             <label for="count1" class="col-form-label">Количество слов</label>
         </div>
         <div class="col-auto">
-            <input type="number" id="count1" class="form-control" min="5" max="30" name="count">
+            <input type="number" id="count1" class="form-control" min="7" max="30" name="count">
         </div>
         <div class="col-auto">
             <input type="submit" name="btn1" class="btn btn-primary mb-1" value="Сгенерировать">
         </div>
         <div class="col-auto">
             <span id="passwordHelpInline" class="form-text">
-            Доступное количество от 5 до 30.
+            Доступное количество от 7 до 30.
             </span>
         </div>
     </div>
@@ -25,22 +26,40 @@
 
 {% endif %}
 
-{% for item in words%}
-<div class="container">
-    <div class="row justify-content-md-center">
-        <div class="col-1"><input type="submit" name="{{item[0]}}" class="btn btn-primary mb-1" value="Аудио"></div>
-        <div class="col-2">{{item[1]}}</div>
-        <div class="col-2">{{item[2]}}</div>
-        <div class="col-4">{{item[3]}}</div>
-    </div>
+<div class="row justify-content-md-right">
+<table class="table table-striped">
+  <thead class="table">
+    <tr>
+      <th scope="col">Аудио</th>
+      <th scope="col">Слово</th>
+      <th scope="col">Транскрипция</th>
+      <th scope="col">Перевод</th>
+    </tr>
+    </thead>
+  {% for item in words%}
+    <tr>
+      <td><input type="submit" name="{{item[0]}}" class="btn btn-primary mb-1" value="Прослушать"></td>
+      <td>{{item[1]}}</td>
+      <td>{{item[2]}}</td>
+      <td>{{item[3]}}</td>
+    </tr>
+  {% endfor %}
+
+</table>
 </div>
-{% endfor %}
+
+
+
+
 {% if words %}
     <div class="container">
-        <div class="row justify-content-md-center">
+        <div class="d-grid gap-2 col-9 mx-auto">
             <input type="submit" name="test" class="btn btn-success mb-2" value="Пройти тест">
         </div>
+        <h1></h1>
+        <h1></h1>
     </div>
+</div>
 </form>
 {% endif %}
 {% endblock %}
