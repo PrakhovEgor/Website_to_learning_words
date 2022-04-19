@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form action="/remember" method="post">
+<h1></h1>
+
+<h1></h1>
+{% if words %}
+    <h2>Все ваши выученные слова:</h2>
+    {% for item in words%}
+    <div class="container-fluid">
+        <div class="row justify-content-md-left">
+            <div class="col-auto"><input type="submit" name="{{item[0]}}" class="btn btn-primary mb-1" value="Аудио"></div>
+            <div class="col-3">{{item[1]}}</div>
+            <div class="col-3">{{item[2]}}</div>
+            <div class="col-3">{{item[3]}}</div>
+
+        </div>
+    </div>
+    {% endfor %}
+    <div class="container">
+        <div class="d-grid gap-2 col-9">
+            <input type="submit" name="test" class="btn btn-success mb-2" value="Пройти тест">
+        </div>
+        <h1></h1>
+        <h1></h1>
+    </div>
+
+{% else %}
+    <h3>Похоже Вы не выучили ни слово :( Но давайте исправим это!</h3>
+    <input type="submit" name="generator" class="btn btn-success mb-2" value="Изучить новые слова">
+{% endif %}
+
+
+
+</form>
+{% if sound %}
+<embed src="{{ url_for('static', filename='output.mp3') }}" autostart="true" width="0" height="0">
+{% endif %}
+{% endblock %}

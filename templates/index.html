@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<form action="/" method="post">
+<h1></h1>
+<figure class="text-center">
+  <blockquote class="blockquote">
+    <h2>Добро пожаловать на наш сайт по изучению английских слов!
+    Здесь Вы можете пополнить свой словарный запас, а в дальнейшем повторять уже изученные слова.</h2>
+  </blockquote>
+  <blockquote class="blockquote">
+    <h3>Так же Вы можете познакомиться с нашим <a href="/api">api</a></h3>
+  </blockquote>
+</figure>
+<figure class="text-center">
+
+<div class="conrainer">
+{% if current_user.is_authenticated %}
+    <button type="submit" class="btn btn-primary" name="go_to_learn">Перейти к изучению</button>
+    <button type="submit" class="btn btn-success" name="go_to_remember">Повторить изученные слова</button>
+{% else %}
+    <button type="submit" class="btn btn-primary" name="go_to_learn" disabled>Перейти к изучению</button>
+    <button type="submit" class="btn btn-success" name="go_to_remember" disabled>Повторить изученные слова</button>
+    <h6><small class="text-muted">Для того, чтобы повторить или изучить слова, надо войти в аккаунт</small></h6>
+{% endif %}
+
+</div>
+</figure>
+<h1></h1>
+
+<h2> Полный список слов:</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Слово</th>
+      <th scope="col">Транскрипция</th>
+      <th scope="col">Перевод</th>
+    </tr>
+  </thead>
+  {% for item in words%}
+    <tr>
+      <td>{{item[1]}}</td>
+      <td>{{item[2]}}</td>
+      <td>{{item[3]}}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+</form>
+{% if sound %}
+<embed src="{{ url_for('static', filename='output.mp3') }}" autostart="true">
+{% endif %}
+{% endblock %}
