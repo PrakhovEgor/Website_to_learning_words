@@ -20,11 +20,7 @@
             </span>
         </div>
     </div>
-{% if check %}
-    <embed src="{{ url_for('static', filename='output.mp3') }}" autostart="true" width="0"
-         height="0">
 
-{% endif %}
 
 <div class="row justify-content-md-right">
 <table class="table table-striped">
@@ -36,14 +32,16 @@
       <th scope="col">Перевод</th>
     </tr>
     </thead>
-  {% for item in words%}
-    <tr>
-      <td><input type="submit" name="{{item[0]}}" class="btn btn-primary mb-1" value="Прослушать"></td>
-      <td>{{item[1]}}</td>
-      <td>{{item[2]}}</td>
-      <td>{{item[3]}}</td>
-    </tr>
-  {% endfor %}
+  {% if words %}
+      {% for item in words%}
+        <tr>
+          <td><input type="submit" name="{{item[0]}}" class="btn btn-primary mb-1" value="Прослушать"></td>
+          <td>{{item[1]}}</td>
+          <td>{{item[2]}}</td>
+          <td>{{item[3]}}</td>
+        </tr>
+      {% endfor %}
+  {% endif %}
 
 </table>
 </div>
@@ -61,5 +59,9 @@
     </div>
 </div>
 </form>
+{% if check %}
+    <embed src="{{ url_for('static', filename='output.mp3') }}" autostart="true" width="0"
+         height="0">
+{% endif %}
 {% endif %}
 {% endblock %}

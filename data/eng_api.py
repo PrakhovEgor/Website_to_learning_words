@@ -3,8 +3,6 @@ import sqlite3
 import flask
 from flask import jsonify
 
-
-
 blueprint = flask.Blueprint(
     'eng_api',
     __name__,
@@ -20,6 +18,7 @@ connection.close()
 for i in res:
     words_all.append(i)
 
+
 @blueprint.route('/api/eng')
 def get_words():
     return jsonify(
@@ -27,6 +26,7 @@ def get_words():
             'words': [item for item in words_all]
         }
     )
+
 
 @blueprint.route('/api/eng/<word>', methods=['GET'])
 def get_one_word(word):
@@ -42,6 +42,3 @@ def get_one_word(word):
         )
 
     return jsonify({'error': 'Not found'})
-
-
-
