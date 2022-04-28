@@ -54,7 +54,6 @@ def index():
     g.data = words_all
     from flask_login import current_user
     if current_user.is_authenticated:
-        
         connection = sqlite3.connect('db/engdata.db')
         cur = connection.cursor()
         session['words'] = []
@@ -91,11 +90,10 @@ def index():
             cur.execute('SELECT eng FROM learn WHERE id=\'' + str(id) + "\'")
             res = cur.fetchall()
             connection.close()
-            print(res[0][0])
             speech(res[0][0], 0, current_user.id)
             is_sound = True
     return render_template("index.html", current_user=current_user, words=session.get('words'), sound=is_sound,
-                           id=idc)
+                           id = idc)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -215,7 +213,7 @@ def test():
             session['rus_words'].append(i[3])
         random.shuffle(session['eng_words'])
         random.shuffle(session['rus_words'])
-    session['progress'] = round(session['count_r'] / len(session['eng_words']) * 100, 0) // 2
+    session['progress'] = round(session['count_r'] / (len(session['eng_words']) * 2) * 100, 0)
     if session['part'] == 1:
         word = session['eng_words'][session['a']]
         word_tr = session['dict_tr'][word]
@@ -260,7 +258,6 @@ def test():
                         for i in session['id_words']:
                             cur.execute('SELECT * FROM dict WHERE id =\'' + str(i) + "\'")
                             res = cur.fetchall()
-                            print(res[0])
                             cur.execute("INSERT INTO learn VALUES(\"%s\", \"%s\", \"%s\" , \"%s\" , \"%s\")" % (
                                 current_user.email, res[0][0], res[0][1], res[0][2], res[0][3]))
                             connection.commit()
