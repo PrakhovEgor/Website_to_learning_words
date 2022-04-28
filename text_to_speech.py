@@ -1,7 +1,7 @@
 from gtts import gTTS
 
 
-def speech(text, lg):
+def speech(text, lg, id):
     language = ['en', 'ru']
     output = gTTS(text=text, lang=language[lg], slow=False)
-    output.save("static/output.mp3")
+    output.save(f"static/{id}.mp3")

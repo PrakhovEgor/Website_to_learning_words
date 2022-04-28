@@ -2,6 +2,7 @@
 
 {% block content %}
 <h1></h1>
+
 <form action="/generator" method="post">
 <div class="d-grid gap-2 col-11 mx-auto">
     <div class="row justify-content-md-center">
@@ -60,7 +61,7 @@
 </div>
 </form>
 {% if check %}
-    <embed src="{{ url_for('static', filename='output.mp3') }}" autostart="true" width="0"
+    <embed src="static/{{ id }}" autostart="true" width="0"
          height="0">
 {% endif %}
 {% endif %}

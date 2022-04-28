@@ -18,11 +18,9 @@
 
 <div class="conrainer">
 {% if current_user.is_authenticated %}
-    <button type="submit" class="btn btn-primary" name="go_to_learn">Перейти к изучению</button>
-    <button type="submit" class="btn btn-success" name="go_to_remember">Повторить изученные слова</button>
+    <button type="submit" class="btn btn-success" name="go_to_learn">Перейти к изучению</button>
 {% else %}
-    <button type="submit" class="btn btn-primary" name="go_to_learn" disabled>Перейти к изучению</button>
-    <button type="submit" class="btn btn-success" name="go_to_remember" disabled>Повторить изученные слова</button>
+    <button type="submit" class="btn btn-success" name="go_to_learn" disabled>Перейти к изучению</button>
     <h6><small class="text-muted">Для того, чтобы повторить или изучить слова, надо войти в аккаунт</small></h6>
 {% endif %}
 
@@ -30,27 +28,48 @@
 </figure>
 <h1></h1>
 
-<h2> Полный список слов:</h2>
+<h2>Ваши выученные слова:</h2>
+{% if words %}
+<div class="d-grid gap-2 col-6 mx-auto">
+  <input type="submit" name="test" class="btn btn-success" value="Пройти тест">
+</div>
+<div class="row justify-content-md-right">
+  <table class="table table-striped">
+      <thead class="table">
+      <tr>
+          <th scope="col">Аудио</th>
+          <th scope="col">Слово</th>
+          <th scope="col">Транскрипция</th>
+          <th scope="col">Перевод</th>
+      </tr>
+      </thead>
+      
+      {% for item in words%}
+      <tr>
+          <td><input type="submit" name="{{item[0]}}" class="btn btn-primary mb-1" value="Прослушать"></td>
+          <td>{{item[1]}}</td>
+          <td>{{item[2]}}</td>
+          <td>{{item[3]}}</td>
+      </tr>
+      {% endfor %}
+  </table>
+</div>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">Слово</th>
-      <th scope="col">Транскрипция</th>
-      <th scope="col">Перевод</th>
-    </tr>
-  </thead>
-  {% for item in words%}
-    <tr>
-      <td>{{item[1]}}</td>
-      <td>{{item[2]}}</td>
-      <td>{{item[3]}}</td>
-    </tr>
-  {% endfor %}
-</table>
+
+  <h1></h1>
+  <h1></h1>
+
+
+{% else %}
+{% if current_user.is_authenticated %}
+<h5>Похоже Вы не выучили ни одного слова :(</h5>
+{% endif %}
+{% endif %}
+
 
 </form>
 {% if sound %}
-<embed src="{{ url_for('static', filename='output.mp3') }}" autostart="true">
+    <embed src="static/{{ id }}" autostart="true" width="0"
+         height="0">
 {% endif %}
 {% endblock %}

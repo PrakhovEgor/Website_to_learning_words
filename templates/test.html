@@ -2,11 +2,11 @@
 
 {% block content %}
 <form action="/test" method="post">
-<div class="d-grid gap-2 col-9 mx-auto">
-<h2>Прогресс:</h2>
-<div class="progress">
-<div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
-</div>
+    <div class="d-grid gap-2 col-9 mx-auto">
+    <h2>Прогресс:</h2>
+    <div class="progress">
+    <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
 {% if not ready %}
     <h1>Перевод слова "{{ word }}":</h1>
     {% if correct %}
@@ -52,7 +52,7 @@
     {% endif%}
 </div>
 {% if sound %}
-    <embed src="{{ url_for('static', filename='output.mp3') }}" autostart="true" width="0"
+    <embed src="static/{{ id }}" autostart="true" width="0"
          height="0">
 {% endif %}
 </form>

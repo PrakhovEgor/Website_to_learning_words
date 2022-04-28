@@ -1,23 +1,26 @@
+import datetime
 import random
 import sqlite3
-import datetime
 from itertools import groupby
+import os
+from flask import (Flask, g, render_template, request, session)
+from flask_login import LoginManager, login_required, login_user, logout_user
 
-from flask import Flask, render_template, request, session, make_response, url_for, g
-from flask_login import LoginManager, login_user, logout_user, login_required
-from flask_session import Session
 from werkzeug.utils import redirect
-from data.users import User
+
 from data import db_session, eng_api
-from forms.user import RegisterForm, LoginForm
+from data.users import User
+from forms.user import LoginForm, RegisterForm
 from text_to_speech import speech
-from flask_ngrok import run_with_ngrok
 
 app = Flask(__name__)
-run_with_ngrok(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
+def get_port():
+  return int(os.environ.get("PORT", 33507))
 
 
 def words_g():
@@ -46,16 +49,53 @@ def load_user(user_id):
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
+    session['words'] = []
     words_all = words_g()
     g.data = words_all
     from flask_login import current_user
+    if current_user.is_authenticated:
+        
+        connection = sqlite3.connect('db/engdata.db')
+        cur = connection.cursor()
+        session['words'] = []
+        cur.execute('SELECT * FROM learn WHERE name=\'' + current_user.email + "\'")
+        res = cur.fetchall()
+        connection.close()
+        for i in res:
+            session.get('words').append(i[1:])
+        idc = str(current_user.id) + '.mp3'
+    else:
+        idc = 0
+    is_sound = False
     if request.method == 'POST':
         if 'go_to_learn' in request.form:
             session['words'] = []
             return redirect('/generator')
-        elif 'go_to_remember' in request.form:
-            return redirect('/remember')
-    return render_template("index.html", current_user=current_user, words=words_all)
+        elif 'test' in request.form:
+            session['part'] = 1
+            session['flag'] = 1
+            session['eng_words'] = []
+            session['rus_words'] = []
+            session['count_r'] = 0
+            session['a'] = 0
+            session['dict_tr'] = {}
+            session['part'] = 1
+            session['lg'] = 0
+            return redirect('/test')
+        else:
+            id = 0
+            for i in request.form:
+                id = i
+            connection = sqlite3.connect('db/engdata.db')
+            cur = connection.cursor()
+            cur.execute('SELECT eng FROM learn WHERE id=\'' + str(id) + "\'")
+            res = cur.fetchall()
+            connection.close()
+            print(res[0][0])
+            speech(res[0][0], 0, current_user.id)
+            is_sound = True
+    return render_template("index.html", current_user=current_user, words=session.get('words'), sound=is_sound,
+                           id=idc)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -99,6 +139,11 @@ def login():
 
 @app.route("/generator", methods=['GET', 'POST'])
 def generator():
+    from flask_login import current_user
+    try:
+        os.remove('static/' + str(current_user.id) + '.mp3')
+    except:
+        pass
     words_all = words_g()
     is_sound = False
     session['flag'] = 1
@@ -111,8 +156,12 @@ def generator():
     session['lg'] = 0
     if request.method == 'POST':
         if "btn1" in request.form:
+            try:
+                count = int(request.form['count'])
+            except:
+                count = 7
             dig = [i for i in range(len(words_all))]
-            id_words = random.sample(dig, int(request.form['count']))
+            id_words = random.sample(dig, count)
             session['id_words'] = id_words
             if id_words:
                 connection = sqlite3.connect('db/engdata.db')
@@ -121,7 +170,6 @@ def generator():
                 for i in id_words:
                     cur.execute('SELECT * FROM dict WHERE id =\'' + str(i) + "\'")
                     res = cur.fetchall()
-                    print(res)
                     words.append(res[0])
                 connection.close()
                 session['words'] = words
@@ -140,7 +188,7 @@ def generator():
                     k = 0
                     for j in session.get('words', None):
                         if j[0] == i:
-                            speech(session.get('words', None)[k][1], 0)
+                            speech(session.get('words', None)[k][1], 0, current_user.id)
                             is_sound = True
                             break
                         else:
@@ -148,12 +196,16 @@ def generator():
                     break
 
     return render_template('generator.html', title='Название приложения', words=session.get('words', 0),
-                           check=is_sound)
+                           check=is_sound, id=str(current_user.id) + '.mp3')
 
 
 @app.route("/test", methods=['GET', 'POST'])
 def test():
     from flask_login import current_user
+    try:
+        os.remove('static/' + str(current_user.id) + '.mp3')
+    except:
+        pass
     session['rus_words'] = [el for el, _ in groupby(session.get('rus_words', None))]
     if session.get('flag', None) == 1:
         session['eng_words'] = []
@@ -180,7 +232,7 @@ def test():
             random.shuffle(rus)
     sound = False
     if session.get('flag', None) == 1:
-        speech(word, session['lg'])
+        speech(word, session['lg'], current_user.id)
         sound = True
         session['flag'] = 0
     btn_next = False
@@ -219,7 +271,7 @@ def test():
 
         elif 'btn_next' in request.form:
             random.shuffle(session['rus_words'])
-            speech(word, session['lg'])
+            speech(word, session['lg'], current_user.id)
             sound = True
         elif 'main_page' in request.form:
             session['flag'] = 1
@@ -241,47 +293,8 @@ def test():
                     random.shuffle(rus)
     return render_template('test.html', ready=ready, correct=correct,
                            progress=session['progress'], word=word, rus=rus, btn_next=btn_next, word_tr=word_tr,
-                           sound=sound, wrong_word=wrong_word)
+                           sound=sound, wrong_word=wrong_word, id=str(current_user.id) + '.mp3')
 
-
-@app.route("/remember", methods=['GET', 'POST'])
-def remember():
-    from flask_login import current_user
-    connection = sqlite3.connect('db/engdata.db')
-    cur = connection.cursor()
-    session['words'] = []
-    cur.execute('SELECT * FROM learn WHERE name=\'' + current_user.email + "\'")
-    res = cur.fetchall()
-    connection.close()
-    for i in res:
-        session.get('words').append(i[1:])
-    is_sound = False
-    if request.method == 'POST':
-        if 'test' in request.form:
-            session['part'] = 1
-            session['flag'] = 1
-            session['eng_words'] = []
-            session['rus_words'] = []
-            session['count_r'] = 0
-            session['a'] = 0
-            session['dict_tr'] = {}
-            session['part'] = 1
-            session['lg'] = 0
-            return redirect('/test')
-        elif 'generator' in request.form:
-            return redirect('/generator')
-        else:
-            id = 0
-            for i in request.form:
-                id = i
-            connection = sqlite3.connect('db/engdata.db')
-            cur = connection.cursor()
-            cur.execute('SELECT eng FROM learn WHERE id=\'' + str(id) + "\'")
-            res = cur.fetchall()
-            connection.close()
-            speech(res[0][0], 0)
-            is_sound = True
-    return render_template('remember.html', title='Название приложения', words=session.get('words'), sound=is_sound)
 
 
 @app.route("/api", methods=['GET', 'POST'])
@@ -293,13 +306,15 @@ def api():
 @login_required
 def logout():
     logout_user()
+    session['words'] = []
     return redirect("/")
 
 
 def main():
     db_session.global_init("db/blogs.db")
     app.register_blueprint(eng_api.blueprint)
-    app.run()
+    app.run(host='0.0.0.0', port=get_port())
+
 
 
 if __name__ == '__main__':
